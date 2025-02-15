@@ -30,6 +30,18 @@ type UserProfile = {
   level: string;
   avatar?: string;
 };
+type Order = {
+  id: string;
+  items: CartItem[];
+  total: number;
+  date: string;
+  status: "processing" | "confirmed" | "shipping" | "delivered";
+  deliveryInfo: {
+    address: string;
+    city: string;
+    state: string;
+  };
+};
 type DataContextType = {
   profile: UserProfile;
   updateProfile: (data: Partial<UserProfile>) => void;
@@ -43,6 +55,10 @@ type DataContextType = {
   logout: () => void;
   deleteAccount: () => void;
   changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
+  orders: Order[];
+  addOrder: (order: Omit<Order, "id" | "date" | "status">) => string;
+  getOrder: (id: string) => Order | undefined;
+  addPaymentHistory: (payment: PaymentHistory) => void;
 };
 const DataContext = createContext<DataContextType | undefined>(undefined);
 export function DataProvider({
@@ -64,7 +80,7 @@ export function DataProvider({
     expiryDate: "12/24",
     default: true
   }]);
-  const [paymentHistory] = useState<PaymentHistory[]>([{
+  const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([{
     id: "1",
     date: "2024-01-15",
     amount: 79.99,
@@ -77,6 +93,7 @@ export function DataProvider({
   const [recommendedBooks] = useState<Book[]>([
     // Your recommended books data here
   ]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const updateProfile = (data: Partial<UserProfile>) => {
     setProfile(prev => ({
       ...prev,
@@ -108,6 +125,22 @@ export function DataProvider({
   const changePassword = async (oldPassword: string, newPassword: string) => {
     // Implement password change logic
   };
+  const addOrder = (orderData: Omit<Order, "id" | "date" | "status">) => {
+    const newOrder = {
+      ...orderData,
+      id: `ORD${Math.random().toString(36).substr(2, 9)}`.toUpperCase(),
+      date: new Date().toISOString(),
+      status: "processing"
+    };
+    setOrders(prev => [...prev, newOrder]);
+    return newOrder.id;
+  };
+  const getOrder = (id: string) => {
+    return orders.find(order => order.id === id);
+  };
+  const addPaymentHistory = (payment: PaymentHistory) => {
+    setPaymentHistory(prev => [payment, ...prev]);
+  };
   return <DataContext.Provider value={{
     profile,
     updateProfile,
@@ -120,7 +153,11 @@ export function DataProvider({
     paymentHistory,
     logout,
     deleteAccount,
-    changePassword
+    changePassword,
+    orders,
+    addOrder,
+    getOrder,
+    addPaymentHistory
   }}>
       {children}
     </DataContext.Provider>;

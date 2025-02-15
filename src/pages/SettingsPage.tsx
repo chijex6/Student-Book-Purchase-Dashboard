@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User, CreditCard, Clock, Lock, LogOut, Trash2, ChevronRight, Plus, Check, AlertTriangle } from "lucide-react";
+import { User, CreditCard, Clock, Lock, LogOut, Trash2, ChevronRight, Plus, Check, AlertTriangle, ChevronDown } from "lucide-react";
 import { useData } from "../context/DataContext";
 import { motion } from "framer-motion";
 export function SettingsPage() {
@@ -21,6 +21,7 @@ export function SettingsPage() {
     newPassword: "",
     confirmPassword: ""
   });
+  const [expandedPayment, setExpandedPayment] = useState<string | null>(null);
   const handlePasswordChange = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       return; // Show error
@@ -31,11 +32,67 @@ export function SettingsPage() {
   return <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        {/* Payment Methods */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Payment Methods
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <User className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Account</h2>
+                <p className="text-sm text-gray-500">
+                  Manage your account settings
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <button onClick={() => setShowPasswordChange(true)} className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+              <div className="flex items-center gap-4">
+                <Lock className="w-5 h-5 text-gray-400" />
+                <div>
+                  <span className="font-medium">Change Password</span>
+                  <p className="text-sm text-gray-500">Update your password</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </button>
+            <button onClick={() => logout()} className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+              <div className="flex items-center gap-4">
+                <LogOut className="w-5 h-5 text-gray-400" />
+                <div>
+                  <span className="font-medium">Logout</span>
+                  <p className="text-sm text-gray-500">
+                    Sign out of your account
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </button>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <CreditCard className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Payment Methods
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Manage your payment methods
+                </p>
+              </div>
+            </div>
+            <button className="text-purple-600 hover:text-purple-700 flex items-center gap-2" onClick={() => {
+            /* Add payment method */
+          }}>
+              <Plus className="w-4 h-4" />
+              <span>Add New</span>
+            </button>
+          </div>
           <div className="space-y-4">
             {paymentMethods.map(method => <div key={method.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-4">
@@ -59,57 +116,124 @@ export function SettingsPage() {
                   </button>
                 </div>
               </div>)}
-            <button className="flex items-center gap-2 text-purple-600 hover:text-purple-700">
-              <Plus className="w-4 h-4" />
-              <span>Add Payment Method</span>
-            </button>
           </div>
         </div>
-        {/* Payment History */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Payment History
-          </h2>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Clock className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Order History
+              </h2>
+              <p className="text-sm text-gray-500">View your past orders</p>
+            </div>
+          </div>
           <div className="space-y-4">
-            {paymentHistory.map(payment => <div key={payment.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <p className="font-medium">${payment.amount.toFixed(2)}</p>
-                  <p className="text-sm text-gray-500">{payment.date}</p>
+            {paymentHistory.map(payment => <div key={payment.id} className="space-y-2">
+                <div onClick={() => setExpandedPayment(expandedPayment === payment.id ? null : payment.id)} className="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <div>
+                    <p className="font-medium">${payment.amount.toFixed(2)}</p>
+                    <p className="text-sm text-gray-500">
+                      {new Date(payment.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-sm px-2 py-1 rounded-full ${payment.status === "completed" ? "bg-green-100 text-green-600" : payment.status === "pending" ? "bg-yellow-100 text-yellow-600" : "bg-red-100 text-red-600"}`}>
+                      {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+                    </span>
+                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedPayment === payment.id ? "rotate-180" : ""}`} />
+                  </div>
                 </div>
-                <span className={`text-sm px-2 py-1 rounded-full ${payment.status === "completed" ? "bg-green-100 text-green-600" : payment.status === "pending" ? "bg-yellow-100 text-yellow-600" : "bg-red-100 text-red-600"}`}>
-                  {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
-                </span>
+                <motion.div initial={{
+              height: 0,
+              opacity: 0
+            }} animate={{
+              height: expandedPayment === payment.id ? "auto" : 0,
+              opacity: expandedPayment === payment.id ? 1 : 0
+            }} transition={{
+              duration: 0.2
+            }} className="overflow-hidden">
+                  <div className="p-4 bg-gray-50 rounded-lg border mt-2 space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-500">Order ID</p>
+                        <p className="font-medium text-gray-900">
+                          {payment.id}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Payment Date</p>
+                        <p className="font-medium text-gray-900">
+                          {new Date(payment.date).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-2">
+                        Items Purchased
+                      </p>
+                      <div className="space-y-2">
+                        {payment.items.map((item, index) => <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                            <div className="w-2 h-2 rounded-full bg-purple-600" />
+                            <span>{item}</span>
+                          </div>)}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-2">
+                        Payment Details
+                      </p>
+                      <div className="bg-white p-3 rounded border">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Amount</span>
+                          <span className="font-medium">
+                            ${payment.amount.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm mt-1">
+                          <span className="text-gray-600">Payment Method</span>
+                          <span className="font-medium">Credit Card</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm mt-1">
+                          <span className="text-gray-600">Transaction ID</span>
+                          <span className="font-medium text-purple-600">
+                            {payment.id.toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
               </div>)}
           </div>
         </div>
-        {/* Security */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Security</h2>
-          <div className="space-y-4">
-            <button onClick={() => setShowPasswordChange(true)} className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-              <div className="flex items-center gap-4">
-                <Lock className="w-5 h-5 text-gray-400" />
-                <span>Change Password</span>
-              </div>
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-            </button>
-            <button onClick={() => logout()} className="w-full flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-              <div className="flex items-center gap-4">
-                <LogOut className="w-5 h-5 text-gray-400" />
-                <span>Logout</span>
-              </div>
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-            </button>
-            <button onClick={() => setShowDeleteConfirm(true)} className="w-full flex items-center justify-between p-4 border border-red-200 rounded-lg hover:bg-red-50">
-              <div className="flex items-center gap-4">
-                <Trash2 className="w-5 h-5 text-red-500" />
-                <span className="text-red-500">Delete Account</span>
-              </div>
-              <ChevronRight className="w-5 h-5 text-red-500" />
-            </button>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Danger Zone
+              </h2>
+              <p className="text-sm text-gray-500">Irreversible actions</p>
+            </div>
           </div>
+          <button onClick={() => setShowDeleteConfirm(true)} className="w-full flex items-center justify-between p-4 border border-red-200 rounded-lg hover:bg-red-50">
+            <div className="flex items-center gap-4">
+              <Trash2 className="w-5 h-5 text-red-500" />
+              <div>
+                <span className="font-medium text-red-500">Delete Account</span>
+                <p className="text-sm text-red-400">
+                  This action cannot be undone
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-red-500" />
+          </button>
         </div>
-        {/* Password Change Modal */}
         {showPasswordChange && <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
             <div className="bg-white rounded-xl p-6 w-full max-w-md">
               <h3 className="text-lg font-semibold mb-4">Change Password</h3>
@@ -152,7 +276,6 @@ export function SettingsPage() {
               </div>
             </div>
           </div>}
-        {/* Delete Confirmation Modal */}
         {showDeleteConfirm && <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
             <div className="bg-white rounded-xl p-6 w-full max-w-md">
               <div className="flex items-center gap-4 mb-4">

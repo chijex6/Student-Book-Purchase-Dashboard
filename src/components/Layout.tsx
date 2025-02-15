@@ -10,6 +10,8 @@ import { NotificationsPage } from "../pages/NotificationsPage";
 import { CartPage } from "../pages/CartPage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { Toaster } from "react-hot-toast";
+import { TrackOrderPage } from "../pages/TrackOrderPage";
+import { CheckoutPage } from "../pages/CheckoutPage";
 export function Layout() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const location = useLocation();
@@ -32,6 +34,8 @@ export function Layout() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/track-order/:orderId" element={<TrackOrderPage />} />
         </Routes>
         <Toaster position="top-right" />
       </div>

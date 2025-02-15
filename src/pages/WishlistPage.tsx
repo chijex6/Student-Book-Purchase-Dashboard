@@ -1,5 +1,5 @@
 import React from "react";
-import { BookOpen, ShoppingCart, Trash2 } from "lucide-react";
+import { BookOpen, ShoppingCart, Trash2, Heart } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";

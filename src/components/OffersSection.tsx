@@ -1,7 +1,7 @@
 import React from "react";
 import { Tag, Bookmark } from "lucide-react";
 export function OffersSection() {
-  return <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  return <div className="space-y-6">
       <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg shadow p-6 text-white">
         <div className="flex items-center space-x-2 mb-4">
           <Tag className="w-6 h-6" />

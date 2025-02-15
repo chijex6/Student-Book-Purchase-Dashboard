@@ -3,7 +3,9 @@ import { ShoppingCart, Trash2, ArrowRight, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
+import { useNavigate } from "react-router-dom";
 export function CartPage() {
+  const navigate = useNavigate();
   const {
     items,
     updateQuantity,
@@ -19,6 +21,11 @@ export function CartPage() {
   };
   const handleClearCart = () => {
     clearCart();
+  };
+  const handleCheckout = () => {
+    if (cartItems.length > 0) {
+      navigate("/checkout");
+    }
   };
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const tax = subtotal * 0.1; // 10% tax
@@ -117,7 +124,7 @@ export function CartPage() {
                     </span>
                   </div>
                 </div>
-                <button className="w-full mt-6 bg-purple-600 text-white py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-purple-700 transition-colors">
+                <button onClick={handleCheckout} className="w-full mt-6 bg-purple-600 text-white py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-purple-700 transition-colors">
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
